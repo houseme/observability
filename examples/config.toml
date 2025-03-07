@@ -1,0 +1,25 @@
+[opentelemetry]
+endpoint = "http://localhost:4317"
+tracer_enabled = true
+meter_enabled = true
+logs_enabled = true
+use_stdout = true
+sample_ratio = 0.5
+meter_interval = 30
+service_name = "log_service"
+service_version = "0.1.0"
+deployment_environment = "develop"
+
+[sinks]
+[sinks.kafka]
+enabled = false
+bootstrap_servers = "localhost:9092"
+topic = "logs"
+
+[sinks.webhook]
+enabled = false
+url = "http://localhost:8080/webhook"
+
+[sinks.file]
+enabled = true
+path = "app.log"
