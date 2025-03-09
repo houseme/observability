@@ -90,7 +90,6 @@ impl Logger {
 }
 
 /// 启动日志模块
-#[allow(dead_code)]
 pub fn start_logger(config: &AppConfig, sinks: Vec<Arc<dyn Sink>>) -> Logger {
     let (logger, receiver) = Logger::new(config);
     tokio::spawn(crate::worker::start_worker(receiver, sinks));

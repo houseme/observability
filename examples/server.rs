@@ -2,7 +2,7 @@ use logging::{init_logging, load_config, LogEntry};
 use opentelemetry::global;
 use opentelemetry::trace::TraceContextExt;
 use std::time::{Duration, SystemTime};
-use tracing::{debug, info, instrument, Span};
+use tracing::{info, instrument, Span};
 use tracing_core::Level;
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 
@@ -10,9 +10,12 @@ use tracing_opentelemetry::OpenTelemetrySpanExt;
 async fn main() {
     let start_time = SystemTime::now();
     let config = load_config();
-    println!("配置文件加载完成 {:?}", config.clone());
+    info!(
+        "Configuration file loading is complete {:?}",
+        config.clone()
+    );
     let (logger, _guard) = init_logging(config);
-    info!("日志模块初始化完成");
+    info!("Log module initialization is completed");
     // Simulate the operation
     tokio::time::sleep(Duration::from_millis(100)).await;
 
@@ -29,11 +32,11 @@ async fn main() {
     // Use 'OpenTelemetrySpanExt' to get 'SpanContext'
     let span_context = span.context(); // Get context via OpenTelemetrySpanExt
     let span_id = span_context.span().span_context().span_id().to_string(); // Get the SpanId
-
+    let trace_id = span_context.span().span_context().trace_id().to_string(); // Get the TraceId
     logger
         .log(LogEntry::new(
             Level::INFO,
-            "处理用户请求".to_string(),
+            "Process user requests".to_string(),
             "api_handler".to_string(),
             Some("req-12345".to_string()),
             Some("user-6789".to_string()),
@@ -41,6 +44,7 @@ async fn main() {
                 ("endpoint".to_string(), "/api/v1/data".to_string()),
                 ("method".to_string(), "GET".to_string()),
                 ("span_id".to_string(), span_id),
+                ("trace_id".to_string(), trace_id),
             ],
         ))
         .await;
@@ -50,9 +54,9 @@ async fn main() {
         "user".to_string(),
     )
     .await;
-    info!("日志记录完成");
+    info!("Logging is completed");
     tokio::time::sleep(Duration::from_secs(2)).await;
-    info!("程序结束");
+    info!("Program ends");
 }
 
 #[instrument(fields(bucket, object, user))]
@@ -64,12 +68,14 @@ async fn put_object(bucket: String, object: String, user: String) {
     // Use 'OpenTelemetrySpanExt' to get 'SpanContext'
     let span_context = span.context(); // Get context via OpenTelemetrySpanExt
     let span_id = span_context.span().span_context().span_id().to_string(); // Get the SpanId
-    debug!(
-        "Starting PUT operation content: bucket = {}, object = {}, user = {},span_id = {},start_time = {}",
+    let trace_id = span_context.span().span_context().trace_id().to_string(); // Get the TraceId
+    info!(
+        "Starting PUT operation content: bucket = {}, object = {}, user = {},span_id = {},trace_id = {},start_time = {}",
         bucket,
         object,
         user,
         span_id,
+        trace_id,
         start_time.elapsed().unwrap().as_secs_f64()
     );
     // Simulate the operation

@@ -5,9 +5,6 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Clone)]
 pub struct OtelConfig {
     pub endpoint: String,
-    pub tracer_enabled: bool,
-    pub meter_enabled: bool,
-    pub logs_enabled: bool,
     pub use_stdout: bool,
     pub sample_ratio: f64,
     pub meter_interval: u64,
