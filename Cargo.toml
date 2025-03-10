@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 tokio = { version = "1.44.0", features = ["full"] }
 serde = { version = "1.0.218", features = ["derive"] }
-config = "0.15.9"
+config = { version = "0.15.9" }
 tracing = { version = "0.1.41" }
 tracing-opentelemetry = "0.29.0"
 tracing-subscriber = { version = "0.3.19", features = ["fmt", "env-filter", "tracing-log", "time", "local-time", "json", "serde"] }
@@ -20,6 +20,7 @@ chrono = { version = "0.4.40", features = ["serde"] }
 async-trait = "0.1.87"
 tracing-core = "0.1.33"
 serde_json = "1.0.140"
+thiserror = "2.0.12"
 
 [dependencies.rdkafka]
 version = "0.37.0"

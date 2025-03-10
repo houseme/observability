@@ -15,11 +15,21 @@ deployment_environment = "develop"
 enabled = false
 bootstrap_servers = "localhost:9092"
 topic = "logs"
+batch_size = 100               # 批处理大小，默认 100
+batch_timeout_ms = 1000        # 批处理超时时间，默认 1000ms
 
 [sinks.webhook]
 enabled = false
 url = "http://localhost:8080/webhook"
+max_retries = 3                # 最大重试次数，默认 3
+retry_delay_ms = 100           # 重试延迟基数，默认 100ms
 
 [sinks.file]
 enabled = true
 path = "app.log"
+buffer_size = 8192             # 写缓冲区大小，默认 8192 字节
+flush_interval_ms = 1000       # 刷新间隔时间，默认 1000ms
+flush_threshold = 100          # 刷新阈值，默认 100 条日志
+
+[logger]
+queue_capacity = 10000

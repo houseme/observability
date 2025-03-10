@@ -33,7 +33,7 @@ async fn main() {
     let span_context = span.context(); // Get context via OpenTelemetrySpanExt
     let span_id = span_context.span().span_context().span_id().to_string(); // Get the SpanId
     let trace_id = span_context.span().span_context().trace_id().to_string(); // Get the TraceId
-    logger
+    let result = logger
         .log(LogEntry::new(
             Level::INFO,
             "Process user requests".to_string(),
@@ -48,6 +48,7 @@ async fn main() {
             ],
         ))
         .await;
+    info!("Logging is completed {:?}", result);
     put_object(
         "bucket".to_string(),
         "object".to_string(),
