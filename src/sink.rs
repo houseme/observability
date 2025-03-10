@@ -59,6 +59,18 @@ impl KafkaSink {
         sink
     }
 
+    // Add a getter method to read the batch_timeout_ms field
+    #[allow(dead_code)]
+    pub fn batch_timeout(&self) -> u64 {
+        self.batch_timeout_ms
+    }
+
+    // Add a method to dynamically adjust the timeout if needed
+    #[allow(dead_code)]
+    pub fn set_batch_timeout(&mut self, new_timeout_ms: u64) {
+        self.batch_timeout_ms = new_timeout_ms;
+    }
+
     async fn periodic_flush(
         producer: rdkafka::producer::FutureProducer,
         topic: String,
@@ -121,7 +133,18 @@ impl Sink for KafkaSink {
         let mut batch = self.entries.lock().await;
         batch.push(entry.clone());
 
-        if batch.len() >= self.batch_size {
+        let should_flush_by_size = batch.len() >= self.batch_size;
+        let should_flush_by_time = {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis() as u64;
+            let last = self.last_flush.load(std::sync::atomic::Ordering::Relaxed);
+            now - last >= self.batch_timeout_ms
+        };
+
+        if should_flush_by_size || should_flush_by_time {
+            // Existing flush logic
             let entries_to_send: Vec<LogEntry> = batch.drain(..).collect();
             let producer = self.producer.clone();
             let topic = self.topic.clone();

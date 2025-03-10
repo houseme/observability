@@ -6,8 +6,8 @@ mod telemetry;
 mod worker;
 
 use crate::logger::start_logger;
-pub use config::load_config;
 pub use config::AppConfig;
+pub use config::load_config;
 pub use entry::{LogEntry, SerializableLevel};
 pub use logger::Logger;
 pub use sink::Sink;

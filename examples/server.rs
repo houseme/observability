@@ -1,8 +1,8 @@
-use observability::{init_logging, load_config, LogEntry};
+use observability::{LogEntry, init_logging, load_config};
 use opentelemetry::global;
 use opentelemetry::trace::TraceContextExt;
 use std::time::{Duration, SystemTime};
-use tracing::{info, instrument, Span};
+use tracing::{Span, info, instrument};
 use tracing_core::Level;
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 

@@ -1,22 +1,22 @@
 use crate::config::OtelConfig;
 use opentelemetry::trace::TracerProvider;
-use opentelemetry::{global, KeyValue};
+use opentelemetry::{KeyValue, global};
 use opentelemetry_appender_tracing::layer;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::{
+    Resource,
     metrics::{MeterProviderBuilder, PeriodicReader, SdkMeterProvider},
     trace::{RandomIdGenerator, Sampler, SdkTracerProvider},
-    Resource,
 };
 use opentelemetry_semantic_conventions::{
+    SCHEMA_URL,
     attribute::{
         DEPLOYMENT_ENVIRONMENT_NAME, NETWORK_LOCAL_ADDRESS, SERVICE_NAME, SERVICE_VERSION,
     },
-    SCHEMA_URL,
 };
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
+use tracing_subscriber::{EnvFilter, Layer, layer::SubscriberExt, util::SubscriberInitExt};
 
 /// OpenTelemetry 清理守卫
 pub struct OtelGuard {
