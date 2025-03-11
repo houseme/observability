@@ -2,6 +2,14 @@
 name = "observability"
 version = "0.1.0"
 edition = "2024"
+homepage = "https://github.com/houseme/observability"
+description = "A simple observability library for Rust applications."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/houseme/observability"
+#documentation = "https://docs.rs/observability"
+readme = "README.md"
+keywords = ["observability", "logging", "tracing", "opentelemetry"]
+categories = ["development-tools::profiling", "development-tools::debugging", "api-bindings", "asynchronous"]
 
 [dependencies]
 tokio = { version = "1.44.0", features = ["full"] }

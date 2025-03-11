@@ -1,22 +1,21 @@
-# Observability
+# 可观测性
 
-Metrics, links, and loggers based on `opentelemetry`.
+基于`opentelemetry`的指标、链接和日志记录器。
 
-## Overview
+## 概述
 
-`observability` is a simple observability library for Rust applications, providing metrics, tracing, and logging
-capabilities.
+`observability`是一个简单的 Rust 应用程序可观测性库，提供指标、追踪和日志记录功能。
 
-## Installation
+## 安装
 
-Add the following to your `Cargo.toml`:
+在您的`Cargo.toml`中添加以下内容：
 
 ```toml
 [dependencies]
 observability = { version = "0.1.0", git = "https://github.com/houseme/observability.git", branch = "main" }
 ```
 
-## Usage
+## 使用
 
 ```rust
 use observability::{init_logging, load_config};
@@ -26,12 +25,12 @@ use tracing::info;
 async fn main() {
     let config = load_config();
     let (logger, _guard) = init_logging(config);
-    info!("Log module initialization is completed");
-    // Your application code here
+    info!("日志模块初始化完成");
+    // 您的应用程序代码
 }
 ```
 
-## Metrics
+## 指标
 
 - [Prometheus](https://prometheus.io/)
 - [Grafana](https://grafana.com/)
@@ -42,20 +41,20 @@ async fn main() {
 - [OpenCensus](https://opencensus.io/)
 - [OpenMetrics](https://openmetrics.io/)
 
-## Links
+## 链接
 
 - [OpenTelemetry](https://opentelemetry.io/)
 - [OpenTracing](https://opentracing.io/)
 - [OpenCensus](https://opencensus.io/)
 
-## Loggers
+## 日志记录器
 
 - [Loki]
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please open an issue or submit a pull request.
+欢迎贡献！请打开一个 issue 或提交一个 pull request。
 
-## License
+## 许可证
 
-This project is licensed under the MIT OR Apache-2.0 license.
+本项目使用 MIT 或 Apache-2.0 许可证。
