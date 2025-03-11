@@ -59,7 +59,7 @@ pub struct LoggerConfig {
 /// 应用总体配置
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
-    pub opentelemetry: OtelConfig,
+    pub observability: OtelConfig,
     pub sinks: SinkConfig,
     pub logger: LoggerConfig,
 }

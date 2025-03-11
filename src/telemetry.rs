@@ -1,4 +1,4 @@
-use crate::config::OtelConfig;
+use crate::{OtelConfig, get_local_ip_with_default};
 use opentelemetry::trace::TracerProvider;
 use opentelemetry::{KeyValue, global};
 use opentelemetry_appender_tracing::layer;
@@ -22,6 +22,7 @@ use tracing_subscriber::{EnvFilter, Layer, layer::SubscriberExt, util::Subscribe
 pub struct OtelGuard {
     tracer_provider: SdkTracerProvider,
     meter_provider: SdkMeterProvider,
+    logger_provider: SdkLoggerProvider,
 }
 
 impl Drop for OtelGuard {
@@ -31,6 +32,9 @@ impl Drop for OtelGuard {
         }
         if let Err(err) = self.meter_provider.shutdown() {
             eprintln!("Meter shutdown error: {:?}", err);
+        }
+        if let Err(err) = self.logger_provider.shutdown() {
+            eprintln!("Logger shutdown error: {:?}", err);
         }
     }
 }
@@ -47,7 +51,7 @@ fn resource(config: &OtelConfig) -> Resource {
                     DEPLOYMENT_ENVIRONMENT_NAME,
                     config.deployment_environment.clone(),
                 ),
-                KeyValue::new(NETWORK_LOCAL_ADDRESS, "127.0.0.1"),
+                KeyValue::new(NETWORK_LOCAL_ADDRESS, get_local_ip_with_default()),
             ],
             SCHEMA_URL,
         )
@@ -187,7 +191,6 @@ pub fn init_telemetry(config: &OtelConfig) -> OtelGuard {
 
         registry
             .with(tracing_subscriber::fmt::layer().with_ansi(true))
-            .with(tracing_subscriber::fmt::layer())
             .with(fmt_layer)
             .init();
     } else {
@@ -200,5 +203,6 @@ pub fn init_telemetry(config: &OtelConfig) -> OtelGuard {
     OtelGuard {
         tracer_provider,
         meter_provider,
+        logger_provider,
     }
 }

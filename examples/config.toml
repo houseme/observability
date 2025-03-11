@@ -1,8 +1,5 @@
-[opentelemetry]
+[observability]
 endpoint = "http://localhost:4317"
-tracer_enabled = true
-meter_enabled = true
-logs_enabled = true
 use_stdout = true
 sample_ratio = 0.5
 meter_interval = 30
