@@ -45,20 +45,20 @@ impl<'de> Deserialize<'de> for SerializableLevel {
     }
 }
 
-/// 服务端日志条目结构
+/// Server log entry structure
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LogEntry {
-    pub timestamp: DateTime<Utc>,      // 日志时间戳
-    pub level: SerializableLevel,      // 日志级别
-    pub message: String,               // 日志消息
-    pub source: String,                // 日志来源（如模块名）
-    pub request_id: Option<String>,    // 请求 ID（服务端常见字段）
-    pub user_id: Option<String>,       // 用户 ID（服务端常见字段）
-    pub fields: Vec<(String, String)>, // 附加字段（键值对）
+    pub timestamp: DateTime<Utc>,      // Log timestamp
+    pub level: SerializableLevel,      // Log Level
+    pub message: String,               // Log messages
+    pub source: String,                // Log source (such as module name)
+    pub request_id: Option<String>,    // Request ID (Common Server Fields)
+    pub user_id: Option<String>,       // User ID (Common Server Fields)
+    pub fields: Vec<(String, String)>, // Attached fields (key value pairs)
 }
 
 impl LogEntry {
-    /// 创建新的 LogEntry
+    /// Create a new LogEntry
     pub fn new(
         level: Level,
         message: String,

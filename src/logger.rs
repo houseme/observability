@@ -2,19 +2,19 @@ use crate::{AppConfig, LogEntry, SerializableLevel, Sink};
 use std::sync::Arc;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
-/// 服务端日志处理器
+/// Server log processor
 pub struct Logger {
-    sender: Sender<LogEntry>, // 日志发送通道
+    sender: Sender<LogEntry>, // Log sending channel
     queue_capacity: usize,
 }
 
 impl Logger {
-    /// 创建新的 Logger 实例
-    /// 返回 Logger 和对应的 Receiver
+    /// Create a new Logger instance
+    /// Returns Logger and corresponding Receiver
     pub fn new(config: &AppConfig) -> (Self, Receiver<LogEntry>) {
-        // 从配置中获取队列容量，或使用默认值
+        // Get queue capacity from configuration, or use default values 10000
         let queue_capacity = config.logger.queue_capacity.unwrap_or(10000);
-        let (sender, receiver) = mpsc::channel(queue_capacity); // 队列容量 10000
+        let (sender, receiver) = mpsc::channel(queue_capacity);
         (
             Logger {
                 sender,
@@ -24,29 +24,29 @@ impl Logger {
         )
     }
 
-    // 添加获取队列容量的方法
+    // Add a method to get queue capacity
     pub fn queue_capacity(&self) -> usize {
         self.queue_capacity
     }
 
-    /// 异步记录服务端日志
-    /// 将日志附加到当前 Span，并生成独立的 Tracing Event
+    /// Asynchronous logging of server logs
+    /// Attach the log to the current Span and generate a separate Tracing Event
     #[tracing::instrument(skip(self), fields(log_source = "logger"))]
     pub async fn log(&self, entry: LogEntry) -> Result<(), LogError> {
-        // 将日志消息记录到当前 Span
+        // Log messages to the current Span
         tracing::Span::current()
             .record("log_message", &entry.message)
             .record("source", &entry.source);
 
-        // 记录队列利用率（如果超过某个阈值）
+        // Record queue utilization (if a certain threshold is exceeded)
         let queue_len = self.sender.capacity();
         let utilization = queue_len as f64 / self.queue_capacity as f64;
         if utilization > 0.8 {
             tracing::warn!("Log queue utilization high: {:.1}%", utilization * 100.0);
         }
 
-        // 生成独立的 Tracing Event，包含完整 LogEntry 信息
-        // 根据 level 生成对应的事件
+        // Generate independent Tracing Events with full LogEntry information
+        // Generate corresponding events according to level
         match entry.level {
             SerializableLevel(tracing::Level::ERROR) => {
                 tracing::error!(
@@ -105,11 +105,11 @@ impl Logger {
             }
         }
 
-        // 将日志发送到异步队列，改进错误处理
+        // Send logs to asynchronous queues to improve error handling
         match self.sender.try_send(entry) {
             Ok(_) => Ok(()),
             Err(mpsc::error::TrySendError::Full(entry)) => {
-                // 队列满时的处理策略
+                // Processing strategy when queue is full
                 tracing::warn!("Log queue full, applying backpressure");
                 match tokio::time::timeout(
                     std::time::Duration::from_millis(500),
@@ -128,8 +128,8 @@ impl Logger {
         }
     }
 
-    // 添加便捷方法，简化日志记录
-    // 修复 info() 方法，将 None 替换为空向量，而不是 Option 类型
+    // Add convenient methods to simplify logging
+    // Fix the info() method, replacing None with an empty vector instead of the Option type
     pub async fn info(&self, message: &str, source: &str) -> Result<(), LogError> {
         self.log(LogEntry::new(
             tracing::Level::INFO,
@@ -142,7 +142,7 @@ impl Logger {
         .await
     }
 
-    /// 添加 warn() 方法
+    /// Add warn() method
     pub async fn error(&self, message: &str, source: &str) -> Result<(), LogError> {
         self.log(LogEntry::new(
             tracing::Level::ERROR,
@@ -155,7 +155,7 @@ impl Logger {
         .await
     }
 
-    /// 添加 warn() 方法
+    /// Add warn() method
     pub async fn warn(&self, message: &str, source: &str) -> Result<(), LogError> {
         self.log(LogEntry::new(
             tracing::Level::WARN,
@@ -168,7 +168,7 @@ impl Logger {
         .await
     }
 
-    /// 添加 debug() 方法
+    /// Add debug() method
     pub async fn debug(&self, message: &str, source: &str) -> Result<(), LogError> {
         self.log(LogEntry::new(
             tracing::Level::DEBUG,
@@ -181,7 +181,7 @@ impl Logger {
         .await
     }
 
-    /// 添加 trace() 方法
+    /// Add trace() method
     pub async fn trace(&self, message: &str, source: &str) -> Result<(), LogError> {
         self.log(LogEntry::new(
             tracing::Level::TRACE,
@@ -194,7 +194,7 @@ impl Logger {
         .await
     }
 
-    // 添加带有上下文信息的扩展方法，更加灵活
+    // Add extension methods with context information for more flexibility
     pub async fn info_with_context(
         &self,
         message: &str,
@@ -214,14 +214,14 @@ impl Logger {
         .await
     }
 
-    // 添加优雅关闭方法
+    // Add elegant closing method
     pub async fn shutdown(self) -> Result<(), LogError> {
-        drop(self.sender); // 关闭发送端，让接收端知道不再有新消息
+        drop(self.sender); //Close the sending end so that the receiver knows that there is no new message
         Ok(())
     }
 }
 
-// 定义自定义错误类型
+// Define custom error type
 #[derive(Debug, thiserror::Error)]
 pub enum LogError {
     #[error("Failed to send log: {0}")]
@@ -230,7 +230,7 @@ pub enum LogError {
     Timeout(&'static str),
 }
 
-/// 启动日志模块
+/// Start the log module
 pub fn start_logger(config: &AppConfig, sinks: Vec<Arc<dyn Sink>>) -> Logger {
     let (logger, receiver) = Logger::new(config);
     tokio::spawn(crate::worker::start_worker(receiver, sinks));

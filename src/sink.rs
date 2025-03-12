@@ -5,14 +5,14 @@ use tokio::fs::OpenOptions;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
 
-/// Sink Trait 定义，异步写入日志
+/// Sink Trait definition, asynchronously write logs
 #[async_trait]
 pub trait Sink: Send + Sync {
     async fn write(&self, entry: &LogEntry);
 }
 
 #[cfg(feature = "kafka")]
-/// Kafka Sink 实现
+/// Kafka Sink Implementation
 pub struct KafkaSink {
     producer: rdkafka::producer::FutureProducer,
     topic: String,
@@ -164,8 +164,36 @@ impl Sink for KafkaSink {
     }
 }
 
+#[cfg(feature = "kafka")]
+impl Drop for KafkaSink {
+    fn drop(&mut self) {
+        // Perform any necessary cleanup here
+        // For example, you might want to flush any remaining entries
+        let producer = self.producer.clone();
+        let topic = self.topic.clone();
+        let entries = self.entries.clone();
+        let last_flush = self.last_flush.clone();
+
+        tokio::spawn(async move {
+            let mut batch = entries.lock().await;
+            if !batch.is_empty() {
+                KafkaSink::send_batch(&producer, &topic, batch.drain(..).collect()).await;
+                last_flush.store(
+                    std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_millis() as u64,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
+            }
+        });
+
+        eprintln!("Dropping KafkaSink with topic: {}", self.topic);
+    }
+}
+
 #[cfg(feature = "webhook")]
-/// Webhook Sink 实现
+/// Webhook Sink Implementation
 pub struct WebhookSink {
     url: String,
     client: reqwest::Client,
@@ -221,12 +249,21 @@ impl Sink for WebhookSink {
     }
 }
 
+#[cfg(feature = "webhook")]
+impl Drop for WebhookSink {
+    fn drop(&mut self) {
+        // Perform any necessary cleanup here
+        // For example, you might want to log that the sink is being dropped
+        eprintln!("Dropping WebhookSink with URL: {}", self.url);
+    }
+}
+
 #[cfg(feature = "file")]
-/// 文件 Sink 实现
+/// File Sink Implementation
 pub struct FileSink {
     path: String,
     buffer_size: usize,
-    writer: tokio::sync::Mutex<tokio::io::BufWriter<tokio::fs::File>>,
+    writer: Arc<tokio::sync::Mutex<io::BufWriter<tokio::fs::File>>>,
     entry_count: std::sync::atomic::AtomicUsize,
     last_flush: std::sync::atomic::AtomicU64,
     flush_interval_ms: u64, // Time between flushes
@@ -256,7 +293,7 @@ impl FileSink {
         Ok(FileSink {
             path,
             buffer_size,
-            writer: tokio::sync::Mutex::new(writer),
+            writer: Arc::new(tokio::sync::Mutex::new(writer)),
             entry_count: std::sync::atomic::AtomicUsize::new(0),
             last_flush: std::sync::atomic::AtomicU64::new(now),
             flush_interval_ms,
@@ -268,26 +305,26 @@ impl FileSink {
     async fn initialize_writer(&mut self) -> io::Result<()> {
         let file = tokio::fs::File::create(&self.path).await?;
 
-        // 使用 buffer_size 创建带有指定容量的缓冲写入器
+        // Use buffer_size to create a buffer writer with a specified capacity
         let buf_writer = io::BufWriter::with_capacity(self.buffer_size, file);
 
-        // 用新的 Mutex 替换原来的 writer
-        self.writer = tokio::sync::Mutex::new(buf_writer);
+        // Replace the original writer with the new Mutex
+        self.writer = Arc::new(tokio::sync::Mutex::new(buf_writer));
         Ok(())
     }
 
-    // 获取当前缓冲区大小
+    // Get the current buffer size
     #[allow(dead_code)]
     pub fn buffer_size(&self) -> usize {
         self.buffer_size
     }
 
-    // 动态调整缓冲区大小的方法
+    // How to dynamically adjust the buffer size
     #[allow(dead_code)]
     pub async fn set_buffer_size(&mut self, new_size: usize) -> io::Result<()> {
         if self.buffer_size != new_size {
             self.buffer_size = new_size;
-            // 直接重新初始化写入器，不需要检查 is_some()
+            // Reinitialize the writer directly, without checking is_some()
             self.initialize_writer().await?;
         }
         Ok(())
@@ -351,7 +388,25 @@ impl Sink for FileSink {
     }
 }
 
-/// 创建 Sink 实例列表
+#[cfg(feature = "file")]
+impl Drop for FileSink {
+    fn drop(&mut self) {
+        let writer = self.writer.clone();
+        let path = self.path.clone();
+
+        tokio::task::spawn_blocking(move || {
+            let rt = tokio::runtime::Runtime::new().unwrap();
+            rt.block_on(async {
+                let mut writer = writer.lock().await;
+                if let Err(e) = writer.flush().await {
+                    eprintln!("Failed to flush log file {}: {}", path, e);
+                }
+            });
+        });
+    }
+}
+
+/// Create a list of Sink instances
 pub fn create_sinks(config: &AppConfig) -> Vec<Arc<dyn Sink>> {
     let mut sinks: Vec<Arc<dyn Sink>> = Vec::new();
 
@@ -413,7 +468,7 @@ pub fn create_sinks(config: &AppConfig) -> Vec<Arc<dyn Sink>> {
                 sinks.push(Arc::new(FileSink {
                     path: path.clone(),
                     buffer_size,
-                    writer: tokio::sync::Mutex::new(writer),
+                    writer: Arc::new(tokio::sync::Mutex::new(writer)),
                     entry_count: std::sync::atomic::AtomicUsize::new(0),
                     last_flush: std::sync::atomic::AtomicU64::new(now),
                     flush_interval_ms: config.sinks.file.flush_interval_ms.unwrap_or(1000),
