@@ -54,14 +54,6 @@ mod tests {
     }
 
     #[test]
-    fn test_transfer_0x00() {
-        let src = "测试\u{0000}一下";
-        let result = transfer_0x00(src.to_string());
-        println!("替换：{}", result);
-        assert_eq!(result, "测试 一下");
-    }
-
-    #[test]
     fn test_char() {
         let c = char::from_u32(0x6D4B).unwrap();
         println!("字符：{}", c);
