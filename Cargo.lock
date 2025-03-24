@@ -1237,17 +1237,14 @@ checksum = "2fb3a2f78c2d55362cd6c313b8abedfbc0142ab3c2676822068fd2ab7d51f9b7"
 
 [[package]]
 name = "opentelemetry-stdout"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5eb0e5a5132e4b80bf037a78e3e12c8402535199f5de490d0c38f7eac71bc831"
+checksum = "a7e27d446dabd68610ef0b77d07b102ecde827a4596ea9c01a4d3811e945b286"
 dependencies = [
- "async-trait",
  "chrono",
  "futures-util",
- "opentelemetry 0.28.0",
- "opentelemetry_sdk 0.28.0",
- "serde",
- "thiserror 2.0.12",
+ "opentelemetry 0.29.0",
+ "opentelemetry_sdk 0.29.0",
 ]
 
 [[package]]
@@ -1266,7 +1263,6 @@ dependencies = [
  "rand 0.8.5",
  "serde_json",
  "thiserror 2.0.12",
- "tracing",
 ]
 
 [[package]]
