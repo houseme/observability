@@ -17,7 +17,7 @@ serde = { version = "1.0.219", features = ["derive"] }
 config = { version = "0.15.11" }
 tracing = { version = "0.1.41" }
 tracing-opentelemetry = "0.30.0"
-tracing-subscriber = { version = "0.3.19", features = ["fmt", "env-filter", "tracing-log", "time", "local-time", "json", "serde"] }
+tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter", "tracing-log", "time", "local-time", "json", "serde"] }
 opentelemetry = "0.29.1"
 opentelemetry-otlp = { version = "0.29.0", features = ["grpc-tonic"] }
 opentelemetry_sdk = "0.29.0"
