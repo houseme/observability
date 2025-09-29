@@ -27,7 +27,7 @@ opentelemetry-stdout = "0.31.0"
 chrono = { version = "0.4.41", features = ["serde"] }
 async-trait = "0.1.88"
 tracing-core = "0.1.33"
-serde_json = { version = "1.0.140", optional = true }
+serde_json = { version = "1.0.145", optional = true }
 thiserror = "2.0.12"
 local-ip-address = "0.6.5"
 
