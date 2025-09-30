@@ -22,7 +22,7 @@ opentelemetry = "0.31.0"
 opentelemetry-otlp = { version = "0.31.0", features = ["grpc-tonic"] }
 opentelemetry_sdk = "0.31.0"
 opentelemetry-semantic-conventions = { version = "0.31.0", features = ["semconv_experimental"] }
-opentelemetry-appender-tracing = { version = "0.29.1", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
+opentelemetry-appender-tracing = { version = "0.31.0", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
 opentelemetry-stdout = "0.31.0"
 chrono = { version = "0.4.41", features = ["serde"] }
 async-trait = "0.1.89"
