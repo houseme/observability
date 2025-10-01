@@ -24,7 +24,7 @@ opentelemetry_sdk = "0.31.0"
 opentelemetry-semantic-conventions = { version = "0.31.0", features = ["semconv_experimental"] }
 opentelemetry-appender-tracing = { version = "0.31.0", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
 opentelemetry-stdout = "0.31.0"
-chrono = { version = "0.4.41", features = ["serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
 async-trait = "0.1.89"
 tracing-core = "0.1.33"
 serde_json = { version = "1.0.145", optional = true }
