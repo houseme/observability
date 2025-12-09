@@ -36,7 +36,7 @@ version = "0.38.0"
 optional = true
 
 [dependencies.reqwest]
-version = "0.12.24"
+version = "0.12.25"
 default-features = false
 features = ["json", "rustls-tls", "charset", "http2", "macos-system-configuration", "stream"]
 optional = true
