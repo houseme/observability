@@ -15,7 +15,7 @@ categories = ["development-tools::profiling", "development-tools::debugging", "a
 tokio = { version = "1.48.0", features = ["sync", "fs", "rt-multi-thread"] }
 serde = { version = "1.0.219", features = ["derive"] }
 config = { version = "0.15.19" }
-tracing = { version = "0.1.43" }
+tracing = { version = "0.1.44" }
 tracing-opentelemetry = "0.32.0"
 tracing-subscriber = { version = "0.3.22", features = ["fmt", "env-filter", "tracing-log", "time", "local-time", "json", "serde"] }
 opentelemetry = "0.31.0"
