@@ -18,7 +18,7 @@ config = { version = "0.15.22" }
 tracing = { version = "0.1.44" }
 tracing-opentelemetry = "0.32.1"
 tracing-subscriber = { version = "0.3.23", features = ["fmt", "env-filter", "tracing-log", "time", "local-time", "json", "serde"] }
-opentelemetry = "0.31.0"
+opentelemetry = "0.32.0"
 opentelemetry-otlp = { version = "0.31.1", features = ["grpc-tonic"] }
 opentelemetry_sdk = "0.31.0"
 opentelemetry-semantic-conventions = { version = "0.31.0", features = ["semconv_experimental"] }
